@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import ArticleList from './Home/ArticleList'
+import Storage from '../Storage'
+import  {Link} from 'react-router-dom'
+
 class Profile extends Component {
     constructor(props) {
         super(props)
@@ -8,19 +11,50 @@ class Profile extends Component {
             favoritedTag: false
         }
     }
-    componentDidMount() {
+    onFollow() {
+        const token = Storage.get() 
+        if(token) {
+            let method = this.state.profile.following ? "DELETE" : "POST"
+            let req = new XMLHttpRequest()
+            req.open(method, `https://conduit.productionready.io/api/profiles/${this.props.username}/follow`, true)
+            req.setRequestHeader("Authorization", `Token ${token}`)
+            req.onload = ()=> {
+                let {profile} = JSON.parse(req.response)
+                if(profile) this.setState({profile})
+            }
+            req.send()
+        }
+    }
+    loadUser() {
+        const token = Storage.get() 
         let {username} = this.props
         let req = new XMLHttpRequest()
         req.open('GET', `https://conduit.productionready.io/api/profiles/${username}`, true)
+        if(token) req.setRequestHeader("Authorization", `Token ${token}`)
         req.onload = ()=> {
             let {profile} = JSON.parse(req.response)
             if(profile) this.setState({profile})
         }
         req.send()
     }
+    componentDidMount() {
+        this.loadUser()
+    }
+    componentDidUpdate(preprops) {
+        if(preprops.username!== this.props.username) this.loadUser()
+    }
     render() {
         if (!this.state.profile) return <div>Loading...</div>
         let {profile, favoritedTag} = this.state
+        let button = (<button onClick={()=>this.onFollow()} className="btn btn-sm btn-outline-secondary action-btn">
+                        <i className="ion-plus-round"></i>
+                        &nbsp;
+                        {profile.following ? "Unfollow": "Follow"} {profile.username} 
+                    </button>)
+        let {username, c_user} = this.props
+        if(username && c_user && c_user.username === username) button = (<button className="btn btn-sm btn-outline-secondary action-btn">
+                    <Link to='/settings' className="nav-link" ><i className="ion-gear-a"></i> Edit profile settings</Link>
+                </button>)
         return (
             <div className="profile-page">
                 <div className="user-info">
@@ -33,11 +67,7 @@ class Profile extends Component {
                         <p>
                             {profile.bio}
                         </p>
-                        <button className="btn btn-sm btn-outline-secondary action-btn">
-                            <i className="ion-plus-round"></i>
-                            &nbsp;
-                            Follow {profile.username} 
-                        </button>
+                        {button}
                         </div>
 
                     </div>
@@ -50,10 +80,10 @@ class Profile extends Component {
                         <div className="articles-toggle">
                         <ul className="nav nav-pills outline-active">
                             <li className="nav-item">
-                            <a className={"nav-link "+(favoritedTag?"":"active")} href="#" onClick={()=>this.setState({favoritedTag: false})}>My Articles</a>
+                            <Link className={"nav-link "+(favoritedTag?"":"active")} to={`/@${username}`} onClick={()=>this.setState({favoritedTag: false})}>My Articles</Link>
                             </li>
                             <li className="nav-item">
-                            <a className={"nav-link "+(favoritedTag?"active":"")} href="#" onClick={()=>this.setState({favoritedTag: true})}>Favorited Articles</a>
+                            <Link className={"nav-link "+(favoritedTag?"active":"")} to={`/@${username}/favorite`} onClick={()=>this.setState({favoritedTag: true})}>Favorited Articles</Link>
                             </li>
                         </ul>
                         </div>

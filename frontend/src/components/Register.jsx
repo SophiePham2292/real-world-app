@@ -62,7 +62,7 @@ class Register extends Component {
                         <input className="form-control form-control-lg" name="email" type="email" placeholder="Email" required/>
                     </fieldset>
                     <fieldset className="form-group">
-                        <input className="form-control form-control-lg" name="password" type="password" placeholder="Password" required/>
+                        <input className="form-control form-control-lg" name="password" autoComplete="false" type="password" placeholder="Password" required/>
                     </fieldset>
                     <button className="btn btn-lg btn-primary pull-xs-right">
                         Sign up

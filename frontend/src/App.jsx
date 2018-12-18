@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {BrowserRouter as Router, Route} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
 import Login from './components/Login'
@@ -15,7 +15,7 @@ class App extends Component {
         this.state = {
             c_user: null
         }
-        this.onLogin = (c_user) => {
+        this.onLoad = (c_user) => {
             this.setState({c_user})
         }
         
@@ -38,13 +38,17 @@ class App extends Component {
             <Router>
                 <div>
                     <Header c_user={this.state.c_user}/>
-                    <Route path='/' exact render={()=>(<HomePage c_user={this.state.c_user}/>)}/>
-                    <Route path='/login' render={()=>(<Login onLogin={this.onLogin}/>)}/>
-                    <Route path='/register' render={()=>(<Register onLogin={this.onLogin}/>)}/>
-                    <Route path='/settings' component={Settings}/>
-                    <Route path='/editor' component={Editor}/>
-                    <Route path='/article/:slug' render={({match})=>(<Article slug={match.params.slug} c_user={this.state.c_user}/>)}/>
-                    <Route path='/@:username' render={({match})=>(<Profile username={match.params.username} c_user={this.state.c_user}/>)}/>
+                    <Switch>
+                        <Route path='/' exact render={()=>(<HomePage c_user={this.state.c_user}/>)}/>
+                        <Route path='/login' render={()=>(<Login onLogin={this.onLoad}/>)}/>
+                        <Route path='/register' render={()=>(<Register onLogin={this.onLoad}/>)}/>
+                        <Route path='/settings' render={()=>(<Settings c_user={this.state.c_user} onUpdate={this.onLoad}/>)}/>
+                        <Route path='/editor/:slug' render={({match})=>(<Editor slug={match.params.slug}/>)}/>
+                        <Route path='/editor' render={()=>(<Editor />)}/>
+                        <Route path='/article/:slug' render={({match})=>(<Article slug={match.params.slug} c_user={this.state.c_user}/>)}/>
+                        <Route path='/@:username' render={({match})=>(<Profile username={match.params.username} c_user={this.state.c_user}/>)}/>
+                    </Switch>
+                    
                 </div>
                 
             </Router>

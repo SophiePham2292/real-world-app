@@ -45,7 +45,7 @@ class HomePage extends Component {
                         <a className="nav-link active" href="#">#{tag}</a>
                         </li>: null}
                     </ul>
-                    <ArticleList tag={tag} feed={feed}/>
+                    <ArticleList tag={tag} feed={c_user?feed:false}/>
                     </div>
                 </div>
                     

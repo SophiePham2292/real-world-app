@@ -57,7 +57,7 @@ class Login extends Component {
                         <input className="form-control form-control-lg" name="email" type="text" placeholder="Email"/>
                     </fieldset>
                     <fieldset className="form-group">
-                        <input className="form-control form-control-lg" name="password" type="password" placeholder="Password"/>
+                        <input className="form-control form-control-lg" name="password" type="password" autoComplete="false" placeholder="Password"/>
                     </fieldset>
                     <button className="btn btn-lg btn-primary pull-xs-right">
                         Sign in

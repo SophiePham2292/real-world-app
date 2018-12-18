@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import  {Link} from 'react-router-dom'
 class Header extends Component {
     render() {
-        if(!this.props.c_user) return (
+        let {c_user} = this.props
+        if(!c_user) return (
             <nav className="navbar navbar-light">
                 <div className="container">
-                    <a className="navbar-brand" href="index.html">conduit</a>
+                    <Link to="/" className="navbar-brand">conduit</Link>
                     <ul className="nav navbar-nav pull-xs-right">
                         <li className="nav-item"><Link to='/' className="nav-link active" >Home</Link></li>
                         <li className="nav-item"><Link to='/login' className="nav-link" >Sign in</Link></li>
@@ -17,12 +18,12 @@ class Header extends Component {
         else return (
             <nav className="navbar navbar-light">
                 <div className="container">
-                    <a className="navbar-brand" href="index.html">conduit</a>
+                    <Link to="/" className="navbar-brand">conduit</Link>
                     <ul className="nav navbar-nav pull-xs-right">
                         <li className="nav-item"><Link to='/' className="nav-link active" >Home</Link></li>
                         <li className="nav-item"><Link to='/editor' className="nav-link" ><i className="ion-compose"></i>&nbsp;New Article</Link></li>
                         <li className="nav-item"><Link to='/settings' className="nav-link" ><i className="ion-gear-a"></i>&nbsp;Settings</Link></li>
-                        <li className="nav-item"><Link to='/settings' className="nav-link" ><i className="ion-gear-a"></i>&nbsp;{this.props.c_user.username}</Link></li>
+                        <li className="nav-item"><Link to={`/@${c_user.username}`} className="nav-link" >&nbsp;<img className="user-pic" src={c_user.image}/>{c_user.username}</Link></li>
                     </ul>
                 </div>
             </nav>

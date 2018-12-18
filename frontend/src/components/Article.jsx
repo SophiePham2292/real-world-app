@@ -1,30 +1,129 @@
 import React, {Component} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
+import Storage from '../Storage'
 import CommentsList from './Article/CommentsList'
 
 class Article extends Component {
     constructor(props){
         super(props)
         this.state = {
-            article: null
+            article: null,
+            comments: null,
+            comment: ""
+        }
+        this.onDelete = ()=> {
+            const {slug} = this.state.article
+            const token = Storage.get()
+            if(slug && token) {
+                let req = new XMLHttpRequest()
+                req.open("DELETE", `https://conduit.productionready.io/api/articles/${slug}`, true)
+                req.setRequestHeader("Authorization", `Token ${token}`)
+                req.onload = ()=> {
+                    this.setState({isDeleted: true})
+                }
+                req.send()
+            }
+
+        }
+        this.onSubmit = event=> {
+            event.preventDefault()
+            const body = this.state.comment
+            const comment = {body}
+            const token = Storage.get()
+            const {slug} = this.state.article
+            if(token) {
+                let req = new XMLHttpRequest()
+                req.open("POST", `https://conduit.productionready.io/api/articles/${slug}/comments`, true)
+                req.setRequestHeader("Authorization", `Token ${token}`)
+                req.setRequestHeader("Content-Type", "application/json")
+                req.onload = ()=> {
+                    const {comment} = JSON.parse(req.response)
+                    if(comment){
+                        let {comments} = this.state
+                        comments.splice(0,0,comment)
+                        this.setState({comments, comment: ""})
+                    } 
+                }
+                req.send(JSON.stringify({comment}))
+            }
+        }
+        this.onDeleteComment = id => {
+            const token = Storage.get()
+            const {slug} = this.state.article
+            if(token) {
+                let req = new XMLHttpRequest()
+                req.open("DELETE", `https://conduit.productionready.io/api/articles/${slug}/comments/${id}`)
+                req.setRequestHeader("Authorization", `Token ${token}`)
+                req.onload = () => {
+                    this.loadComments()
+                }
+                req.send()            
+            }
         }
     }
-    componentDidMount() {
+    onFollow() {
+        const token = Storage.get() 
+        const {article} = this.state
+        const {author} = article
+        const {following} = author
+        if(token) {
+            let method =following ? "DELETE" : "POST"
+            let req = new XMLHttpRequest()
+            req.open(method, `https://conduit.productionready.io/api/profiles/${author.username}/follow`, true)
+            req.setRequestHeader("Authorization", `Token ${token}`)
+            req.onload = ()=> {
+                this.loadArticle()
+            }
+            req.send()
+        }
+    }
+    onFavorite() {
+        const token = Storage.get() 
+        const {article} = this.state
+        const { favorited, slug} = article
+        if(token) {
+            let method = favorited ? "DELETE" : "POST"
+            let req = new XMLHttpRequest()
+            req.open(method, `https://conduit.productionready.io/api/articles/${slug}/favorite`, true)
+            req.setRequestHeader("Authorization", `Token ${token}`)
+            req.onload = ()=> {
+                this.loadArticle()
+            }
+            req.send()
+        }
+    }
+    loadArticle() {
         const {slug}= this.props
+        const token = Storage.get()
         let req = new XMLHttpRequest()
         req.open('GET', `https://conduit.productionready.io/api/articles/${slug}`, true)
+        if(token) req.setRequestHeader("Authorization", `Token ${token}`)
         req.onload = ()=> {
             let {article} = JSON.parse(req.response)
             if(article) this.setState({article})
         }
         req.send()
     }
+    loadComments() {
+        let {slug} = this.props
+        let req = new XMLHttpRequest()
+        req.open("GET", `https://conduit.productionready.io/api/articles/${slug}/comments`, true)
+        req.onload = () => {
+            const {comments} = JSON.parse(req.response)
+            if(comments) this.setState({comments})
+        }
+        req.send()
+    }
+    componentDidMount() {
+        this.loadArticle()
+        this.loadComments()
+    }
     loadFooter() {
         const {c_user} = this.props
         if(c_user) {
-            return( <form className="card comment-form">
+            return( <form className="card comment-form" onSubmit={this.onSubmit}>
                         <div className="card-block">
-                            <textarea className="form-control" placeholder="Write a comment..." rows="3"></textarea>
+                            <textarea className="form-control" placeholder="Write a comment..." rows="3" value={this.state.comment} onChange={(e)=>this.setState({comment: e.target.value})}></textarea>
                         </div>
                         <div className="card-footer">
                             <img src={c_user.image} className="comment-author-img" />
@@ -36,11 +135,55 @@ class Article extends Component {
 
         } else return <div><Link to="/login">Sign in</Link> or <Link to="/login">Sign Up</Link> to add comments on this article.</div>
     }
-    render() {
+    loadFollowButton() {
+        const {c_user} = this.props
         const {article} = this.state
+        const {author, favorited} = article
+        const {following} = author
+        if(c_user.username === author.username) return ( <span>
+            <button className="btn btn-sm btn-outline-secondary">
+                <Link to={`/editor/${article.slug}`}><i className="ion-edit"></i>&nbsp;Edit Article</Link>
+            </button>
+                &nbsp;&nbsp;
+                <button className="btn btn-sm btn-outline-danger" onClick={()=>this.onDelete()}>
+                <i className="ion-trash-a"></i>
+                &nbsp;
+                Delete Article
+            </button>
+        </span>
+            )
+        else return ( <span>
+            <button className="btn btn-sm btn-outline-secondary" onClick={()=>this.onFollow()}>
+                <i className="ion-plus-round"></i>
+                &nbsp;
+                {following?"Unfollow":"Follow"} {author.username}
+            </button>
+                &nbsp;&nbsp;
+            <button className="btn btn-sm btn-outline-primary" onClick={()=>this.onFavorite()}>
+                <i className="ion-heart"></i>
+                &nbsp;
+                {favorited? "Unfavorite" : "Favorite"} Article <span className="counter">({article.favoritesCount})</span>
+            </button>
+        </span>
+            )
+    }
+    loadTagsList() {
+        const {tagList} = this.state.article
+        let rows = []
+        tagList.forEach((tag, index)=> {
+            rows.push(<li key={index} className="tag-default tag-pill tag-outline">{tag}</li> )
+        })
+        return rows
+    }
+    render() {
+        if(this.state.isDeleted) return <Redirect to="/"/>
+        const {article} = this.state
+        const {c_user} = this.props
         if(!article) return (<div>Loading...</div>)
         else {
             const {author} = article
+            
+            
             return (
             <div className="article-page">
 
@@ -55,17 +198,7 @@ class Article extends Component {
                         <a href="" className="author">{author.username}</a>
                         <span className="date">{new Date(article.createdAt).toLocaleDateString("en-US", {year: 'numeric', month: 'long', day: 'numeric' })}</span>
                         </div>
-                        <button className="btn btn-sm btn-outline-secondary">
-                        <i className="ion-plus-round"></i>
-                        &nbsp;
-                        Follow {author.username}
-                        </button>
-                        &nbsp;&nbsp;
-                        <button className="btn btn-sm btn-outline-primary">
-                        <i className="ion-heart"></i>
-                        &nbsp;
-                        Favorite Post <span className="counter">({article.favoritesCount})</span>
-                        </button>
+                        {this.loadFollowButton()}
                     </div>
 
                     </div>
@@ -80,6 +213,9 @@ class Article extends Component {
                         </p>
                     </div>
                     </div>
+                    <ul className="tag-list">
+                        {this.loadTagsList()}
+                    </ul>
 
                     <hr />
 
@@ -91,17 +227,7 @@ class Article extends Component {
                         <span className="date">{new Date(article.updatedAt).toLocaleDateString("en-US", {year: 'numeric', month: 'long', day: 'numeric'})}</span>
                         </div>
 
-                        <button className="btn btn-sm btn-outline-secondary">
-                        <i className="ion-plus-round"></i>
-                        &nbsp;
-                        Follow {author.username}
-                        </button>
-                        &nbsp;
-                        <button className="btn btn-sm btn-outline-primary">
-                        <i className="ion-heart"></i>
-                        &nbsp;
-                        Favorite Post <span className="counter">({article.favoritesCount})</span>
-                        </button>
+                        {this.loadFollowButton()}
                     </div>
                     </div>
 
@@ -110,7 +236,7 @@ class Article extends Component {
                     <div className="col-xs-12 col-md-8 offset-md-2">
                         {this.loadFooter()}
                         <br/>
-                        <CommentsList slug={this.props.slug}/>
+                        <CommentsList comments={this.state.comments} username={c_user.username} onDelete={this.onDeleteComment}/>
                     </div>
 
                     </div>

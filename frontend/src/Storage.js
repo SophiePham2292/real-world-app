@@ -3,6 +3,8 @@ exports.get = () => {
     return token
 }
 exports.set = (token) => {
-    console.log(token)
     localStorage.setItem('token', token)
+}
+exports.remove = ()=> {
+    localStorage.removeItem('token')
 }

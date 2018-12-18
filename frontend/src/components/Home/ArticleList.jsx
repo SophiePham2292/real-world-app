@@ -13,6 +13,24 @@ class ArticleList extends Component {
             articlesCount: 10
         }
         this.onChangePagination = this.onChangePagination.bind(this)
+        this.onLike = (index)=> {
+            let token = Storage.get()
+            let {articles} = this.state
+            if(token) {
+                let method =  articles[index].favorited ? "DELETE" : "POST"
+                let req = new XMLHttpRequest()
+                req.open(method, `https://conduit.productionready.io/api/articles/${articles[index].slug}/favorite`, true)
+                req.setRequestHeader("Authorization", `Token ${token}`)
+                req.onload = ()=> {
+                    const {article} = JSON.parse(req.response)
+                    if(article) {
+                        articles[index] = article
+                        this.setState({articles})
+                    }
+                }
+                req.send()
+            }
+        }
     }
     loadArticles() {
         let token = Storage.get()
@@ -48,8 +66,9 @@ class ArticleList extends Component {
     render() {
         let rows = []
         this.state.articles.forEach((article, index)=> {
-            rows.push(<ArticlePreview key={index} article={article}/>)
+            rows.push(<ArticlePreview key={index} article={article} index={index} onLike={this.onLike}/>)
         })
+        if(rows.length === 0) rows.push(<div key={0}><br/>No articles are here... yet.</div>)
         return (
             <div>
                 {rows}
