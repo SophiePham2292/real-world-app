@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
 import Login from './components/Login'
@@ -13,10 +13,11 @@ class App extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            c_user: null
+            c_user: null,
+            isUpdated: false
         }
         this.onLoad = (c_user) => {
-            this.setState({c_user})
+            this.setState({c_user, isUpdated: true})
         }
         
     }
@@ -33,7 +34,11 @@ class App extends Component {
             req.send()
         }
     }
+    componentDidUpdate(preprops) {
+        if(this.state.isUpdated) this.setState({isUpdated: false})
+    }
     render() {
+        if(this.state.isUpdated) return <Router><Redirect to="/"/></Router> 
         return (
             <Router>
                 <div>

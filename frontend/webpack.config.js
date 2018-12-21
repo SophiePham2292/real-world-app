@@ -1,5 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 module.exports = {
     entry: "./src/index.js",
     mode: "development",
@@ -28,5 +29,5 @@ module.exports = {
         port: 4000,
         hotOnly: false
     },
-    plugins: [new webpack.HotModuleReplacementPlugin()]
+    plugins: [new webpack.HotModuleReplacementPlugin(), new CleanWebpackPlugin(['../backend/public/js/*.*'], {allowExternal: true}) ]
 }

@@ -11,6 +11,7 @@ require('./models/Article')
 require('./models/Comment')
 
 app.use(express.static(path.join(__dirname, "public")))
+app.use('/public' , express.static(path.join(__dirname, "public")))
 app.use(require('./routes'))
 app.use((err, req, res, next)=> {
     res.status(err.status||500)

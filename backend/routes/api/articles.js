@@ -86,8 +86,8 @@ router.get('/feed', auth.required, (req, res, next)=> {
     }
 })
 
-router.get('/:slug', (req,res)=> {
-    res.json({article: req.article.toArticleJson()})
+router.get('/:slug',auth.required, (req,res)=> {
+    res.json({article: req.article.toArticleJson(req.user)})
 })
 
 router.put('/:slug',auth.required ,(req, res, next)=> {

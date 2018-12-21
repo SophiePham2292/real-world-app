@@ -31,7 +31,7 @@ router.post('/:username/follow', auth.required, (req, res, next)=> {
     }
 })
 
-router.delete('/:username/unfollow', auth.required, (req, res, next)=> {
+router.delete('/:username/follow', auth.required, (req, res, next)=> {
     let profile = req.profile
     if(!profile) res.sendStatus(401)
     else {

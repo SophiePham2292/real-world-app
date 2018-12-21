@@ -2,14 +2,20 @@ const router = require('express').Router()
 const path = require('path')
 const User = require('mongoose').model('users')
 const auth = require('../auth')
+
 router.post('/users', (req, res, next)=> {
     let {username, email, password} = req.body.user
-    let user = new User()
-    user.username = username
-    user.email = email
-    user.setPassword(password)
-    user.save().then(function(){
-        res.json({user: user.toAuthJson()})
+    User.findOne({$or: [{username}, {email}]}).then(doc=> {
+        if(doc) res.status(422).json({errors: {"username or email": ["is taken"]}})
+        else {
+            let user = new User()
+            user.username = username
+            user.email = email
+            user.setPassword(password)
+            return user.save().then(function(){
+                return res.json({user: user.toAuthJson()})
+            })
+        }
     }).catch(next)
 })
 router.post('/users/login', (req, res, next)=> {

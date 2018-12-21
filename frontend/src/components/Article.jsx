@@ -140,10 +140,11 @@ class Article extends Component {
         } else return <div><Link to="/login">Sign in</Link> or <Link to="/login">Sign Up</Link> to add comments on this article.</div>
     }
     loadFollowButton() {
-        const {c_user} = this.props
-        const {article} = this.state
-        const {author, favorited} = article
-        const {following} = author
+        let {c_user} = this.props
+        let {article} = this.state
+        let {author, favorited} = article
+        let {following} = author
+        console.log(author)
         if(c_user && c_user.username === author.username) return ( <span>
             <button className="btn btn-sm btn-outline-secondary">
                 <Link to={`/editor/${article.slug}`}><i className="ion-edit"></i>&nbsp;Edit Article</Link>

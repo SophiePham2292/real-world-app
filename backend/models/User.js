@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId
 const jwt = require('jsonwebtoken')
@@ -13,6 +14,8 @@ const UserSchema = new Schema({
     hash: String,
     salt: String
 }, {timestamps: true})
+
+UserSchema.plugin(uniqueValidator, {message: 'is already taken'})
 
 UserSchema.methods.setPassword = function(password) {
     this.salt = crypto.randomBytes(16).toString('hex');

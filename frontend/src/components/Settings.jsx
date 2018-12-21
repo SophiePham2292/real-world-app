@@ -6,10 +6,10 @@ class Settings extends Component {
     constructor(props){
         super(props)
         this.state = {
-            image: props.c_user.image,
-            username: props.c_user.username,
-            bio: props.c_user.bio,
-            email: props.c_user.email,
+            image: props.c_user? props.c_user.image :"",
+            username: props.c_user? props.c_user.username: "",
+            bio: props.c_user ? props.c_user.bio: "",
+            email: props.c_user? props.c_user.email: "",
             password: ""
         }
         this.onSubmit = (e)=> {
@@ -25,7 +25,6 @@ class Settings extends Component {
                 req.setRequestHeader("Content-Type", "application/json")
                 req.onload = ()=> {
                     const {user} = JSON.parse(req.response)
-                    console.log(user)
                     Storage.set(user.token)
                     props.onUpdate(user)
                 }
@@ -33,11 +32,17 @@ class Settings extends Component {
             }
         }
         this.onLogOut = ()=> {
-            console.log("remove")
             Storage.remove()
             props.onUpdate(null)
         }
     }
+    // componentDidUpdate(preprops) {
+    //     if(preprops.toString() !== props.toString()) {
+    //         console.log("HIHI")
+    //         let {image, username, bio, email} = this.props.c_user
+    //         this.setState({image, username, bio, email})
+    //     } 
+    // }
 
     render() {
         if(!this.props.c_user) return <Redirect to="/"/>
