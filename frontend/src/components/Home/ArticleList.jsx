@@ -19,7 +19,7 @@ class ArticleList extends Component {
             if(token) {
                 let method =  articles[index].favorited ? "DELETE" : "POST"
                 let req = new XMLHttpRequest()
-                req.open(method, `https://conduit.productionready.io/api/articles/${articles[index].slug}/favorite`, true)
+                req.open(method, `/api/articles/${articles[index].slug}/favorite`, true)
                 req.setRequestHeader("Authorization", `Token ${token}`)
                 req.onload = ()=> {
                     const {article} = JSON.parse(req.response)
@@ -37,8 +37,8 @@ class ArticleList extends Component {
         let {pageNumber, limit} = this.state
         let {tag, author, favorited, feed} = this.props
         let offset = (pageNumber-1)*limit
-        let url = feed ? `https://conduit.productionready.io/api/articles/feed?limit=${limit}&offset=${offset}` :`
-            https://conduit.productionready.io/api/articles?limit=${limit}&offset=${offset}`+(tag ? `&tag=${tag}`: '')+(author ? `&author=${author}`: '')+(favorited ? `&favorited=${favorited}`: '')
+        let url = feed ? `/api/articles/feed?limit=${limit}&offset=${offset}` :`
+            /api/articles?limit=${limit}&offset=${offset}`+(tag ? `&tag=${tag}`: '')+(author ? `&author=${author}`: '')+(favorited ? `&favorited=${favorited}`: '')
         let req = new XMLHttpRequest()
         req.open('GET',url,true)
         if(token) req.setRequestHeader("Authorization", `Token ${token}`)

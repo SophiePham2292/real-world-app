@@ -17,7 +17,7 @@ class Register extends Component {
             if(username && email && password) {
                 let user = {username, email, password}
                 let req = new XMLHttpRequest()
-                req.open('POST', 'https://conduit.productionready.io/api/users', true)
+                req.open('POST', '/api/users', true)
                 req.setRequestHeader("Content-Type", "application/json")
                 req.onload = ()=> {
                     let {errors ,user} = JSON.parse(req.response)

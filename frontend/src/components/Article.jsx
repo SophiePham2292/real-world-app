@@ -16,7 +16,7 @@ class Article extends Component {
             const token = Storage.get()
             if(slug && token) {
                 let req = new XMLHttpRequest()
-                req.open("DELETE", `https://conduit.productionready.io/api/articles/${slug}`, true)
+                req.open("DELETE", `/api/articles/${slug}`, true)
                 req.setRequestHeader("Authorization", `Token ${token}`)
                 req.onload = ()=> {
                     this.setState({isDeleted: true})
@@ -33,7 +33,7 @@ class Article extends Component {
             const {slug} = this.state.article
             if(token) {
                 let req = new XMLHttpRequest()
-                req.open("POST", `https://conduit.productionready.io/api/articles/${slug}/comments`, true)
+                req.open("POST", `/api/articles/${slug}/comments`, true)
                 req.setRequestHeader("Authorization", `Token ${token}`)
                 req.setRequestHeader("Content-Type", "application/json")
                 req.onload = ()=> {
@@ -52,7 +52,7 @@ class Article extends Component {
             const {slug} = this.state.article
             if(token) {
                 let req = new XMLHttpRequest()
-                req.open("DELETE", `https://conduit.productionready.io/api/articles/${slug}/comments/${id}`)
+                req.open("DELETE", `/api/articles/${slug}/comments/${id}`)
                 req.setRequestHeader("Authorization", `Token ${token}`)
                 req.onload = () => {
                     this.loadComments()
@@ -69,12 +69,14 @@ class Article extends Component {
         if(token) {
             let method =following ? "DELETE" : "POST"
             let req = new XMLHttpRequest()
-            req.open(method, `https://conduit.productionready.io/api/profiles/${author.username}/follow`, true)
+            req.open(method, `/api/profiles/${author.username}/follow`, true)
             req.setRequestHeader("Authorization", `Token ${token}`)
             req.onload = ()=> {
                 this.loadArticle()
             }
             req.send()
+        } else {
+            this.setState({toLogin: true})
         }
     }
     onFavorite() {
@@ -84,19 +86,21 @@ class Article extends Component {
         if(token) {
             let method = favorited ? "DELETE" : "POST"
             let req = new XMLHttpRequest()
-            req.open(method, `https://conduit.productionready.io/api/articles/${slug}/favorite`, true)
+            req.open(method, `/api/articles/${slug}/favorite`, true)
             req.setRequestHeader("Authorization", `Token ${token}`)
             req.onload = ()=> {
                 this.loadArticle()
             }
             req.send()
+        } else {
+            this.setState({toLogin: true})
         }
     }
     loadArticle() {
         const {slug}= this.props
         const token = Storage.get()
         let req = new XMLHttpRequest()
-        req.open('GET', `https://conduit.productionready.io/api/articles/${slug}`, true)
+        req.open('GET', `/api/articles/${slug}`, true)
         if(token) req.setRequestHeader("Authorization", `Token ${token}`)
         req.onload = ()=> {
             let {article} = JSON.parse(req.response)
@@ -107,7 +111,7 @@ class Article extends Component {
     loadComments() {
         let {slug} = this.props
         let req = new XMLHttpRequest()
-        req.open("GET", `https://conduit.productionready.io/api/articles/${slug}/comments`, true)
+        req.open("GET", `/api/articles/${slug}/comments`, true)
         req.onload = () => {
             const {comments} = JSON.parse(req.response)
             if(comments) this.setState({comments})
@@ -140,7 +144,7 @@ class Article extends Component {
         const {article} = this.state
         const {author, favorited} = article
         const {following} = author
-        if(c_user.username === author.username) return ( <span>
+        if(c_user && c_user.username === author.username) return ( <span>
             <button className="btn btn-sm btn-outline-secondary">
                 <Link to={`/editor/${article.slug}`}><i className="ion-edit"></i>&nbsp;Edit Article</Link>
             </button>
@@ -176,6 +180,7 @@ class Article extends Component {
         return rows
     }
     render() {
+        if(this.state.toLogin) return <Redirect to="/login"/>
         if(this.state.isDeleted) return <Redirect to="/"/>
         const {article} = this.state
         const {c_user} = this.props
@@ -236,7 +241,7 @@ class Article extends Component {
                     <div className="col-xs-12 col-md-8 offset-md-2">
                         {this.loadFooter()}
                         <br/>
-                        <CommentsList comments={this.state.comments} username={c_user.username} onDelete={this.onDeleteComment}/>
+                        <CommentsList comments={this.state.comments} username={c_user?c_user.username:null} onDelete={this.onDeleteComment}/>
                     </div>
 
                     </div>

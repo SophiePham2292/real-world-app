@@ -8,7 +8,7 @@ class Tags extends Component {
     }
     componentDidMount() {
         let req = new XMLHttpRequest()
-        req.open('GET', 'https://conduit.productionready.io/api/tags', true)
+        req.open('GET', '/api/tags', true)
         req.onload = () => {
             let tags = JSON.parse(req.response).tags
             if(tags) this.setState({tags})

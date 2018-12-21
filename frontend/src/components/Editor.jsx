@@ -21,7 +21,7 @@ class Editor extends Component {
             let article = {title, description, body, tagList}
             let req = new XMLHttpRequest()
             let method = isEditing ? "PUT" : "POST"
-            let url = `https://conduit.productionready.io/api/articles/`+(slug?slug:"")
+            let url = `/api/articles/`+(slug?slug:"")
             req.open(method, url , true)
             req.setRequestHeader("Content-Type", "application/json")
             req.setRequestHeader("Authorization", `Token ${token}`)
@@ -36,7 +36,7 @@ class Editor extends Component {
         let {slug} = this.props
         if(slug) {
             let req = new XMLHttpRequest()
-            req.open("GET", `https://conduit.productionready.io/api/articles/${slug}`)
+            req.open("GET", `/api/articles/${slug}`)
             req.onload = ()=> {
                 const {article} = JSON.parse(req.response)
                 if(article) {

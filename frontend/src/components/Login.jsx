@@ -16,7 +16,7 @@ class Login extends Component {
             if(email && password) {
                 let user = {email, password}
                 let req = new XMLHttpRequest()
-                req.open('POST', 'https://conduit.productionready.io/api/users/login', true)
+                req.open('POST', '/api/users/login', true)
                 req.setRequestHeader("Content-Type", "application/json")
                 req.onload = ()=> {
                     let {errors, user} = JSON.parse(req.response)

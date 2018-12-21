@@ -20,7 +20,7 @@ class Settings extends Component {
             const token = Storage.get()
             if(token) {
                 let req = new XMLHttpRequest()
-                req.open("PUT", "https://conduit.productionready.io/api/user", true)
+                req.open("PUT", "/api/user", true)
                 req.setRequestHeader("Authorization", `Token ${token}`)
                 req.setRequestHeader("Content-Type", "application/json")
                 req.onload = ()=> {

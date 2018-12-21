@@ -16,7 +16,7 @@ class Profile extends Component {
         if(token) {
             let method = this.state.profile.following ? "DELETE" : "POST"
             let req = new XMLHttpRequest()
-            req.open(method, `https://conduit.productionready.io/api/profiles/${this.props.username}/follow`, true)
+            req.open(method, `/api/profiles/${this.props.username}/follow`, true)
             req.setRequestHeader("Authorization", `Token ${token}`)
             req.onload = ()=> {
                 let {profile} = JSON.parse(req.response)
@@ -29,7 +29,7 @@ class Profile extends Component {
         const token = Storage.get() 
         let {username} = this.props
         let req = new XMLHttpRequest()
-        req.open('GET', `https://conduit.productionready.io/api/profiles/${username}`, true)
+        req.open('GET', `/api/profiles/${username}`, true)
         if(token) req.setRequestHeader("Authorization", `Token ${token}`)
         req.onload = ()=> {
             let {profile} = JSON.parse(req.response)

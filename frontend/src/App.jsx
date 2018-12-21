@@ -24,7 +24,7 @@ class App extends Component {
         const token = Storage.get()
         if(token) {
             let req = new XMLHttpRequest()
-            req.open('GET', " https://conduit.productionready.io/api/user", true)
+            req.open('GET', " /api/user", true)
             req.setRequestHeader("Authorization", `Token ${token}`)
             req.onload = () => {
                 let {user} = JSON.parse(req.response)
